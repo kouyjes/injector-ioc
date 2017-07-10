@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>injector test page</title>
+        <script src="../src/Injector.js"></script>
+        <script>
+            var injector = new Injector();
+            function personService(){
+                this.name = Math.random();
+                this.getPersonName = function () {
+                    return this.name;
+                }
+            }
+            function bookService(personService){
+                this.getName = function () {
+                    return personService.getPersonName();
+                }
+            }
+            bookService.$injector = [personService];
+            injector.service(bookService).service(personService);
+
+            var service = injector.getService(bookService);;
+            console.log(service.getName());;
+            service = injector.getService(bookService);;
+            console.log(service.getName());;
+        </script>
+    </head>
+    <body>
+
+    </body>
+</html>
