@@ -5,17 +5,17 @@
     var FN_ARG = /^\s*(_?)(\S+?)\1\s*$/;
     var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
 
-    function extractArgs(fn) {
-        var fnText = fn.toString().replace(STRIP_COMMENTS, ''),
-            args = fnText.match(ARROW_ARG) || fnText.match(FN_ARGS);
-        return args;
-    }
-    function isObject(){
+    var INITING_STATE = 'initing_state';
+
+    function isObject(value){
         return value !== null && typeof value === 'object';
     }
     var isArray = Array.isArray || function (array) {
             return array instanceof Array;
         };
+    function isString(value){
+        return typeof value === 'string';
+    }
     function isFunction(fn){
         typeof fn === 'function';
     }
@@ -28,7 +28,7 @@
     function extractParameter(fn) {
 
         var fnText = fn.toString().replace(STRIP_COMMENTS, '');
-        args = fnText.match(ARROW_ARG) || fnText.match(FN_ARGS);
+        var args = fnText.match(ARROW_ARG) || fnText.match(FN_ARGS);
         var $injector = [];
         args[1].split(FN_ARG_SPLIT).forEach(function (arg) {
             arg.replace(FN_ARG, function (all, fix, name) {
@@ -47,26 +47,45 @@
             }
         };
     }
-    function enforceFunction(value){
-        if(isFunction(value)){
-            return value;
-        }
-        return function (){
-            return value;
-        }
-    }
 
+    function enforceFunction(fn){
+        if(!isFunction(fn)){
+            throw new Error('define must be a function !');
+        }
+       return fn;
+    }
+    function enforceReturnFunction(fn){
+        if(isFunction(fn)){
+           return fn;
+        }
+        return function () {
+            return fn;
+        };
+    }
     function enforceDefineFn(define){
         var $injector = [],defineFn = null;
         if(isArray(define)){
             defineFn = define.pop();
+            enforceFunction(defineFn);
             $injector = define.slice();
         }else{
-            define = enforceFunction(define);
             defineFn = define;
+            enforceFunction(defineFn);
             $injector = defineFn.$injector || extractParameter(define);
         }
         defineFn.$injector = $injector;
+        return defineFn;
+    }
+
+    function initDefineFnWithParams(name,define){
+        var defineFn;
+        if(arguments.length === 1){
+            define = name;
+            name = null;
+        }
+        defineFn = enforceDefineFn(define);
+        var $injectorName = name || generateInjectorName();
+        defineFn[Injector.beanNameIdentify] = $injectorName;
         return defineFn;
     }
 
@@ -89,92 +108,104 @@
     function Injector() {
         throw new Error('constructor is private !');
     }
+    Injector.beanNameIdentify = '$injectorName';
+    function nextInjectorName(){
+        var _id = 1;
+        return function () {
+            return 'injector_' + (_id++);
+        }
+    }
+    var generateInjectorName = nextInjectorName();
     function createInjector(){
 
         var providerSuffix = '_$Provider';
         var providerCache = new Cache();
-        var factoryCache = new Cache();
+        var instanceCache = new Cache();
 
-
-        function initiate(define,cache){
-            var defineFn = enforceDefineFn(define);
-            var args = defineFn.$injector.map(function (dep) {
-                var depValue = cache.get(dep);
+        function invokeFunction(method,context,params){
+            var fn = context[method];
+            return fn.apply(context,params);
+        }
+        function initiate(defineFn,getFn){
+            var args = (defineFn.$injector || []).map(function (dep) {
+                var depValue = getFn(dep);
                 if(!depValue){
-                    throw new Error('Provider: ' + dep + ' not found !');
+                    throw new Error('Dependence : ' + dep + ' not found !');
                 }
                 return depValue;
             });
             return new Function.prototype.bind.apply(defineFn,[null].concat(args))();
 
         }
-        function getFactory(name){
-
+        function getProvider(name){
+            var providerName = name + providerSuffix;
+            var provider = providerCache[providerName];
+            return provider || null;
         }
-        function getService(name){
-
+        function getFactory(name){
+            var provider = getProvider(name);
+            if(!provider){
+                return null;
+            }
+            return invokeFunction('$get',provider,undefined);
+        }
+        function getService(arg){
+            var service;
+            var name = arg;
+            if(isFunction(name)){
+                name = name[Injector.beanNameIdentify];
+            }
+            if(!isString(name)){
+                throw new Error('argument : ' + name + 'is invalid !');
+            }
+            service = instanceCache[name];
+            if(service === INITING_STATE){
+                throw new Error('Circular dependence !');
+            }
+            if(null !== service){
+                instanceCache[name] = INITING_STATE;
+                try{
+                    service = getFactory(arg);
+                    instanceCache[name] = service;
+                }catch (e){
+                    delete instanceCache[name];
+                }
+            }
+            return service;
         }
         function provider(name,provider){
 
             var providerName = name + providerSuffix;
-            if(arguments.length === 1){
-                return providerCache[providerName] || null;
-            }
+            var providerFn = null;
             if(isFunction(provider) || isArray(provider)){
-                provider = enforceDefineFn(provider);
+                providerFn = enforceDefineFn(provider);
+            }else{
+                providerFn = enforceReturnFunction(provider);
             }
-            if(!isFunction(provider.define)){
-                throw new Error('Provider must has a define function !');
+            var _provider = initiate(providerFn,getProvider);
+            if(!isFunction(_provider['$get'])){
+                throw new Error('Provider must define a $get function !');
             }
-            providerCache[providerName] = initiate(provider,providerCache);
+            providerCache[providerName] = _provider;
+
+            return this;
 
         }
 
-        function factory(name,factory){
-            if(arguments.length === 1){
-                return factoryCache[name] || null;
-            }
-            if(factoryCache.hasOwnProperty(name)){
-                throw new Error('factory:' + name + 'has exist !');
-            }
-            factoryCache[name] = factory;
-        }
-    }
+        function factory(name,define){
 
-    Injector.prototype.factory = function (name,define) {
-        if(arguments.length === 1){
-            return this.factoryCache[name] || null;
+            var factory = initDefineFnWithParams(name,define);
+            return provider(factory[Injector.beanNameIdentify],{
+                $get: function () {
+                    return initiate(factory,getFactory);
+                }
+            });
         }
-        if(this.factoryCache.hasOwnProperty(name)){
-            throw new Error('factory:' + name + 'has exist !');
+        function service(name,define){
+            var service = initDefineFnWithParams(name,define);
+            return factory(function () {
+                return initiate(service,getService);
+            })
         }
-        this.factoryCache[name] = define;
-    };
-    Injector.prototype.service = function (serviceName, serviceDefine) {
-
-        var factoryCache = this.factoryCache;
-        if (arguments.length === 1) {
-            var serviceDefine = this.factoryCache[serviceName];
-            if (!serviceDefine) {
-                return null;
-            }
-            return serviceDefine();
-        }
-        var $injector = [], define = null;
-        if (serviceDefine instanceof Array) {
-            define = serviceDefine.pop();
-            $injector = serviceDefine.slice();
-        } else if (serviceDefine instanceof Function) {
-            define = serviceDefine;
-            if (define) {
-                $injector = define.$injector || extractParameter(define);
-            }
-        }
-
-        if (!define) {
-            throw new TypeError('service define is invalid !');
-        }
-
-        define.$injector = $injector;
     }
 })();

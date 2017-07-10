@@ -1,0 +1,27 @@
+{
+  "name": "injector",
+  "homepage": "https://github.com/kouyjes/injector",
+  "authors": [
+    "kouyjes@gamil.com"
+  ],
+  "description": "",
+  "main": "",
+  "keywords": [
+    "injector",
+    "service",
+    "injector",
+    "factory",
+    "injector",
+    "provider",
+    "injector"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
