@@ -14,7 +14,8 @@ var Injector = (function () {
     }
     function error(text){
         var text = template.apply(this,arguments);
-        throw new Error(text)
+        var e = new Error(text);
+        throw e;
     }
     function isObject(value){
         return value !== null && typeof value === 'object';
@@ -45,17 +46,6 @@ var Injector = (function () {
             });
         });
         return $injector;
-    }
-    function supportObject(delegate){
-        return function (key,value) {
-            if(isObject(key)){
-                forEach(key, function (v,k) {
-                    delegate(k,v);
-                })
-            }else{
-                delegate(key,value);
-            }
-        };
     }
 
     function enforceFunction(fn){
@@ -123,6 +113,9 @@ var Injector = (function () {
     Cache.prototype.put = function (key,value) {
         this.cache[key] = value;
     };
+    Cache.prototype.remove = function (key) {
+        delete this.cache[key];
+    };
     var slice = Array.prototype.slice;
     function Injector(injector){
         var _ = this;
@@ -166,8 +159,9 @@ var Injector = (function () {
             return fn.apply(context,params);
         }
         function initiate(defineFn,getFn){
+            var _ = this;
             var args = (defineFn.$injector || []).map(function (dep) {
-                var depValue = getFn(dep);
+                var depValue = getFn.call(_,dep);
                 if(!depValue){
                     error('Dependence : {0} not found !',dep);
                 }
@@ -178,18 +172,18 @@ var Injector = (function () {
         }
         function getProvider(name){
             var providerName = name + providerSuffix;
-            var provider = providerCache[providerName];
+            var provider = providerCache.get(providerName);
             return provider || null;
         }
         var initPath = [];
         function getFactory(name){
             name = initGetParam(name);
-            var provider = getProvider(name);
+            var provider = this.getProvider(name);
             if(!provider){
                 return null;
             }
             if(initPath.indexOf(name) >= 0){
-                error('Circular dependence: {0} !' + initPath.join('<-'));
+                error('Circular dependence: {0} ' + initPath.join(' <-- '));
             }
             initPath.unshift(name);
             try{
@@ -202,13 +196,13 @@ var Injector = (function () {
         function getService(arg){
             var service;
             var name = initGetParam(arg);
-            service = instanceCache[name];
+            service = instanceCache.get(name);
             if(service === undefined){
                 try{
-                    service = getFactory(arg);
-                    instanceCache[name] = service;
+                    service = this.getFactory(arg);
+                    instanceCache.put(name,service);
                 }catch (e){
-                    delete instanceCache[name];
+                    instanceCache.remove(name);
                     throw e;
                 }
             }
@@ -223,37 +217,40 @@ var Injector = (function () {
             }else{
                 providerFn = enforceReturnFunction(provider);
             }
-            var _provider = initiate(providerFn,getProvider);
+            var _provider = this.initiate(providerFn,this['getProvider']);
             if(!isFunction(_provider['$get'])){
                 error('Provider must define a $get function !');
             }
-            providerCache[providerName] = _provider;
+            providerCache.put(providerName,_provider);
 
             return this;
 
         }
 
         function factory(name,define){
-
+            var _ = this;
             var factory = initDefineFnWithParams(name,define);
             return provider.call(this,factory[Injector.beanNameIdentify],{
                 $get: function () {
-                    return initiate(factory,getFactory);
+                    return _.initiate(factory,_['getFactory']);
                 }
             });
         }
         function service(name,define){
+            var _ = this;
             var service = initDefineFnWithParams(name,define);
             return factory.call(this,service[Injector.beanNameIdentify],function () {
-                return initiate(service,getService);
+                return _.initiate(service,_['getService']);
             });
         }
 
         return {
+            initiate:initiate,
             service:service,
             factory:factory,
             getService:getService,
             getFactory:getFactory,
+            getProvider:getProvider,
             provider:provider
         };
 

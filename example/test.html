@@ -4,25 +4,46 @@
         <title>injector test page</title>
         <script src="../src/Injector.js"></script>
         <script>
-            var injector = new Injector();
+            var baseInjector = new Injector();
+            var injector = new Injector(baseInjector);
+            function myFactory(){
+                var id = Math.random();
+                return function () {
+                    return 'factory' + id;
+                }
+            }
+            baseInjector.factory(myFactory);
             function personService(){
                 this.name = Math.random();
                 this.getPersonName = function () {
                     return this.name;
                 }
             }
-            function bookService(personService){
+            function commonService(){
+                this.random = function () {
+                    return 'id' + Math.random();
+                }
+            }
+            function bookService(personService,commonService,myFactory){
                 this.getName = function () {
                     return personService.getPersonName();
                 }
+                this.getId = function () {
+                    return commonService.random();
+                }
+                this.factory = function () {
+                    return myFactory();
+                };
             }
-            bookService.$injector = [personService];
-            injector.service(bookService).service(personService);
+
+            bookService.$injector = [personService,commonService,'myFactory'];
+            injector.service(bookService).service(personService).service('commonService',commonService);
 
             var service = injector.getService(bookService);;
             console.log(service.getName());;
-            service = injector.getService(bookService);;
-            console.log(service.getName());;
+            console.log(service.getId());;
+            console.log(service.factory());
+            console.log(service.factory());
         </script>
     </head>
     <body>
