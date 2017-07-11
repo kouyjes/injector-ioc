@@ -5,45 +5,42 @@
         <script src="../src/Injector.js"></script>
         <script>
             var baseInjector = new Injector();
-            var injector = new Injector(baseInjector);
-            function myFactory(){
-                var id = Math.random();
-                return function () {
-                    return 'factory' + id;
-                }
-            }
-            baseInjector.factory(myFactory);
-            function personService(){
+            baseInjector.factory('personFactory', function () {
+                return {
+                    name:Math.random(),
+                    getName: function () {
+                        return this.name;
+                    }
+                };
+            }).service('personService', function () {
                 this.name = Math.random();
-                this.getPersonName = function () {
+                this.getName = function () {
                     return this.name;
                 }
-            }
-            function commonService(){
-                this.random = function () {
-                    return 'id' + Math.random();
-                }
-            }
-            function bookService(personService,commonService,myFactory){
-                this.getName = function () {
-                    return personService.getPersonName();
-                }
-                this.getId = function () {
-                    return commonService.random();
-                }
-                this.factory = function () {
-                    return myFactory();
-                };
-            }
+            })
+            var personF = baseInjector.getFactory('personFactory');
+            console.log('factory--personName:' + personF.getName());
 
-            bookService.$injector = [personService,commonService,'myFactory'];
-            injector.service(bookService).service(personService).service('commonService',commonService);
+            var personS = baseInjector.getService('personService');
+            console.log('service--personName:' + personS.getName());
 
-            var service = injector.getService(bookService);;
-            console.log(service.getName());;
-            console.log(service.getId());;
-            console.log(service.factory());
-            console.log(service.factory());
+
+            var injector = new Injector(baseInjector);
+
+            injector.service('bookService', ['personService',function (personService) {
+                this.getBookSeller = function () {
+                    return 'book' + personService.getName();
+                }
+            }]).service('searchService',['personService',function (personService) {
+                this.getSearchName = function () {
+                    return 'search' + personService.getName();
+                }
+            }]);
+
+            var bookS = injector.getService('bookService');
+            console.log('bookS:' + bookS.getBookSeller());
+            var searchS = injector.getService('searchService');
+            console.log('searchS:' + searchS.getSearchName());
         </script>
     </head>
     <body>
