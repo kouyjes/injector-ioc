@@ -1,4 +1,17 @@
 var Injector = (function () {
+
+    if(!Object.assign){
+        Object.assign = function (src,target) {
+            if(!target){
+                return src;
+            }
+            Object.keys(target).forEach(function (key) {
+                src[key] = target[key];
+            });
+            return src;
+        };
+    }
+
     var ARROW_ARG = /^([^\(]+?)=>/;
     var FN_ARGS = /^[^\(]*\(\s*([^\)]*)\)/m;
     var FN_ARG_SPLIT = /,/;
