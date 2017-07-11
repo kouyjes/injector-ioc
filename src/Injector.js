@@ -119,6 +119,9 @@ var Injector = (function () {
     Cache.prototype.remove = function (key) {
         delete this.cache[key];
     };
+    Cache.prototype.has = function (key) {
+        return this.cache.hasOwnProperty(key);
+    };
     var slice = Array.prototype.slice;
     function Super(injectors){
         this.injectors = injectors ? [].concat(injectors) : [];
@@ -270,7 +273,7 @@ var Injector = (function () {
         function existDefine(name){
             name = initGetParam(name);
             var providerName = providerNameSuffix(name);
-            return providerCache.hasOwnProperty(providerName);
+            return providerCache.has(providerName);
         }
         function provider(name,provider){
 

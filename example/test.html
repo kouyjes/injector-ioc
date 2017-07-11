@@ -23,10 +23,17 @@
 
             var personS = baseInjector.getService('personService');
             console.log('service--personName:' + personS.getName());
+            personS = baseInjector.getService('personService');
+            console.log('service--personName:' + personS.getName());
 
 
             var injector = new Injector(baseInjector);
-
+            injector.service('personService', function () {
+                this.name = 'random:' + Math.random();
+                this.getName = function () {
+                    return this.name;
+                };
+            })
             injector.service('bookService', ['personService',function (personService) {
                 this.getBookSeller = function () {
                     return 'book' + personService.getName();
