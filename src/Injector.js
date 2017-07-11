@@ -191,11 +191,40 @@ var Injector = (function () {
     }
     (function () {
         var injectorIdentifyKey = '$injectorName';
-        Injector.identifyKey = function (key) {
-            injectorIdentifyKey = key;
+        var _config = {
+            injectorIdentifyKey:'$injectorName'
         };
-        Injector.identifyKey = function () {
-            return injectorIdentifyKey;
+        Injector.config = function (name,val) {
+            var config = {};;
+            if(arguments.length === 1){
+                if(isString(name)){
+                    return _config[name];
+                }else if(isObject(name)){
+                    config = name;
+                }
+            }else{
+                if(!isString(name)){
+                    error('arg {0} is invalid !',name);
+                }
+                config[name] = val;
+            }
+            if(!val && isObject(name)){
+                config = name;
+            }else{
+
+            }
+            if(!config){
+                return;
+            }
+            Object.keys(config).forEach(function (key) {
+                if(!_config.hasOwnProperty(key)){
+                    return;
+                }
+                var val = config[key];
+                if(val && isString(val)){
+                    _config[key] = val;
+                }
+            });
         };
         Injector.identify = function (fn,value) {
             if(arguments.length === 1){
@@ -206,6 +235,7 @@ var Injector = (function () {
                 return fn;
             }
         };
+
     })();
     function _nextId(){
         var _id = 1;
