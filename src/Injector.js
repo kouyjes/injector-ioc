@@ -23,8 +23,12 @@ var Injector = (function () {
     var isArray = Array.isArray || function (array) {
             return array instanceof Array;
         };
-    function isString(value){
-        return typeof value === 'string';
+    function isString(value,throwError){
+        var result = typeof value === 'string';
+        if(!result && throwError){
+            error('arg {0} must be string type !',value);
+        }
+        return result;
     }
     function isFunction(fn){
         return typeof fn === 'function';
@@ -208,7 +212,8 @@ var Injector = (function () {
         var providerCache = new Cache(),
             instanceCache = new Cache();
 
-        var serviceIndex = Object.create(null);
+        var serviceIndex = Object.create(null),
+            valueIndex = Object.create(null);
 
         function invokeFunction(method,context,params){
             var fn = context[method];
@@ -270,13 +275,26 @@ var Injector = (function () {
             }
             return service;
         }
+        function getValue(name){
+            return this.getFactory(name);
+        }
         function existDefine(name){
             name = initGetParam(name);
             var providerName = providerNameSuffix(name);
             return providerCache.has(providerName);
         }
+        function assertNotExist(name){
+            name = initGetParam(name);
+            if(existDefine(name)){
+                error('injector name : {0} has defined !',name);
+            }
+        }
         function provider(name,provider){
 
+            if(!isString(name)){
+                error('provider arg {0} name must be a string type !',name);
+            }
+            !valueIndex[name] && assertNotExist(name);
             var providerName = providerNameSuffix(name);
             var providerFn = null;
             if(isFunction(provider) || isArray(provider)){
@@ -307,10 +325,19 @@ var Injector = (function () {
             var _ = this;
             var service = initDefineFnWithParams(name,define);
             name = Injector.identify(service);
-            serviceIndex[name] = true;
-            return factory.call(this,name,function () {
+            var result = factory.call(this,name,function () {
                 return _.initiate(service,_['getService']);
             });
+            serviceIndex[name] = true;
+            return result;
+        }
+        function value(name,val){
+            isString(name,true);
+            var result = factory.call(this,name,function () {
+                return val;
+            });
+            valueIndex[name] = true;
+            return result;
         }
 
         function invoke(define){
@@ -321,12 +348,14 @@ var Injector = (function () {
         return {
             initiate:initiate,
             invoke:invoke,
+            provider:provider,
+            value:value,
             service:service,
             factory:factory,
-            getService:getService,
-            getFactory:getFactory,
             getProvider:getProvider,
-            provider:provider
+            getValue:getValue,
+            getService:getService,
+            getFactory:getFactory
         };
 
     }

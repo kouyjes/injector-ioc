@@ -34,9 +34,12 @@
                     return this.name;
                 };
             })
-            injector.service('bookService', ['personService',function (personService) {
+            injector.service('bookService', ['personService','baseConfig',function (personService,baseConfig) {
                 this.getBookSeller = function () {
                     return 'book' + personService.getName();
+                }
+                this.getConfig = function () {
+                    return baseConfig;
                 }
             }]).service('searchService',['personService',function (personService) {
                 this.getSearchName = function () {
@@ -44,10 +47,36 @@
                 }
             }]);
 
+            injector.provider('randomCommon', function () {
+                this.$get = function () {
+                    return this.random();
+                }
+                this.random = function () {
+                    return Math.random();
+                }
+            })
+            injector.provider('stuControl', ['randomCommon',function (randomCommon) {
+                this.$get = function () {
+                    var random = this.random();
+                    return {
+                        code:random
+                    };
+                }
+                this.random = function () {
+                    return 'code' + randomCommon.random();
+                }
+            }]);
+            injector.value('baseConfig',{
+                text:'ccccccccc'
+            });
+            var stuControl = injector.getProvider('stuControl');
+            console.log(stuControl.$get());
             var bookS = injector.getService('bookService');
             console.log('bookS:' + bookS.getBookSeller());
             var searchS = injector.getService('searchService');
             console.log('searchS:' + searchS.getSearchName());
+
+            console.log(bookS.getConfig());
         </script>
     </head>
     <body>
