@@ -1,6 +1,6 @@
 ## Injector 依赖注入会帮助我们创建service、factory、provider，自动创建依赖并注入
 ## 起步
-###定义服务，如：
+### 定义服务，如：
 ```javascript
     function serviceA(){
         this.serviceText = 'serviceA hello world' + Math.random();
@@ -9,11 +9,11 @@
         }
     }
 ```
-###初始化injector
+### 初始化injector
 ```javascript
     var injector = new Injector();
 ```
-###定义方式：
+### 定义方式：
 1.通过函数方式获取服务
 ```javascript
     injector.service(serviceA);
