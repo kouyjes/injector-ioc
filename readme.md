@@ -175,7 +175,7 @@
             return 'serviceB from injectorB';
         };
     });
-    sA = injectorB.getService('serviceA);
+    sA = injectorB.getService('serviceA');
     sA.getText(); // 'serviceB from injectorB'
 ```
 2.多继承
