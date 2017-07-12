@@ -1,5 +1,9 @@
 var Injector = require('../dest/Injector.js').Injector;
 describe("service injector test", function() {
+    var injector;
+    beforeEach(function () {
+        injector = new Injector();
+    });
     it("define and get a service", function() {
         var text = 'serviceA text';
         function serviceA(){
@@ -8,7 +12,6 @@ describe("service injector test", function() {
                 return this.text;
             }
         }
-        var injector = new Injector();
         injector.service(serviceA);
         var sA = injector.getService(serviceA);
         expect(sA.getText()).toEqual(text);
@@ -22,12 +25,11 @@ describe("service injector test", function() {
                 return this.text;
             }
         }
-        var injector = new Injector();
         injector.service(serviceA);
         var sA = injector.getService(serviceA),
             sA_ = injector.getService(serviceA);
         console.log(sA.getText());
-        expect(sA.getText()).toEqual(sA_.getText());
+        expect(sA).toEqual(sA_);
     });
 
     it("service name injector test", function() {
@@ -37,7 +39,6 @@ describe("service injector test", function() {
                 return this.text;
             }
         }
-        var injector = new Injector();
         injector.service('serviceA',serviceA);
         var sA = injector.getService('serviceA');
         expect(sA).not.toBe(null);
@@ -55,8 +56,11 @@ describe("service injector test", function() {
     });
 });
 describe('service dependence test', function () {
+    var injector;
+    beforeEach(function () {
+        injector = new Injector();
+    });
     it('serviceB depend serviceA,serviceC depend serviceA and serviceB', function () {
-        var injector = new Injector();
         function serviceA(){
             this.getTextA = function () {
                 return 'serviceA';
