@@ -77,8 +77,8 @@
     serviceB.$injector = ['serviceA'];//通过名称注入
     
     //声明时定义依赖
-    injector.service('serviceB,['serviceA',serviceB]); //依赖通过名称注入
-    injector.service('serviceB,[serviceA,serviceB]); //依赖通过类型注入
+    injector.service('serviceB',['serviceA',serviceB]); //依赖通过名称注入
+    injector.service('serviceB',[serviceA,serviceB]); //依赖通过类型注入
     
     注:Service依赖可以时已经声明的Value、Service、Factory,如依赖的是Service，则会返回单例的实例
 ```
@@ -143,8 +143,8 @@
     factoryB.$injector = ['factoryA'];//通过名称注入
     
     //声明时定义依赖
-    injector.factory('factoryB,['factoryA',factoryB]); //依赖通过名称注入
-    injector.factory('factoryB,[factoryA,factoryB]); //依赖通过类型注入
+    injector.factory('factoryB',['factoryA',factoryB]); //依赖通过名称注入
+    injector.factory('factoryB',[factoryA,factoryB]); //依赖通过类型注入
     
     注:Service依赖可以时已经声明的Value、Service、Factory,如依赖的是Service，则会返回新创建的实例
 ```
