@@ -1,3 +1,6 @@
+/**
+ * Created by koujp on 2017/7/12.
+ */
 var Injector = (function () {
 
     if(!Object.assign){
@@ -152,7 +155,7 @@ var Injector = (function () {
         return val;
     };
     var InjectorId = _nextId();
-    function Injector(injector){
+    function Injector(){
         var _ = this;
         var _name = template('InjectorInstance_{0}',InjectorId());
         this.name = function (name) {
@@ -162,7 +165,21 @@ var Injector = (function () {
             _name = name;
             return this;
         };
-        this.super = new Super(injector)
+        var injectors = [];
+        Array.prototype.slice.call(arguments,0).forEach(function (arg) {
+            if(isArray(arg)){
+                arg.forEach(function (ar) {
+                    if(ar instanceof Injector){
+                        injectors.push(ar);
+                    }
+                });
+                return;
+            }
+            if(arg instanceof Injector){
+                injectors.push(arg);
+            }
+        });
+        this.super = new Super(injectors)
         var injectorExtend = createInjector(this);
         Object.assign(this,injectorExtend);
 
@@ -192,7 +209,8 @@ var Injector = (function () {
     (function () {
         var injectorIdentifyKey = '$injectorName';
         var _config = {
-            injectorIdentifyKey:'$injectorName'
+            injectorIdentifyKey:'$injectorName',
+            injectorDepIdentifyKey:'$injector'
         };
         Injector.config = function (name,val) {
             var config = {};;
@@ -345,7 +363,7 @@ var Injector = (function () {
             }else{
                 providerFn = enforceReturnFunction(provider);
             }
-            var _provider = this.initiate(providerFn,this['getProvider']);
+            var _provider = initiate.call(this,providerFn,this['getProvider']);
             if(!isFunction(_provider['$get'])){
                 error('Provider must define a $get function !');
             }
@@ -360,7 +378,7 @@ var Injector = (function () {
             var factory = initDefineFnWithParams(name,define);
             return provider.call(this,Injector.identify(factory),{
                 $get: function () {
-                    return _.initiate(factory,_['getFactory'],true);
+                    return initiate.call(_,factory,_['getFactory'],true);
                 }
             });
         }
@@ -369,7 +387,7 @@ var Injector = (function () {
             var service = initDefineFnWithParams(name,define);
             name = Injector.identify(service);
             var result = factory.call(this,name,function () {
-                return _.initiate(service,_['getService']);
+                return initiate.call(_,service,_['getService']);
             });
             serviceIndex[name] = true;
             return result;
@@ -385,11 +403,10 @@ var Injector = (function () {
 
         function invoke(define){
             var factory = initDefineFnWithParams(undefined,define);
-            return this.initiate(factory,this['getFactory']);
+            return initiate.call(this,factory,this['getFactory']);
         }
 
         return {
-            initiate:initiate,
             invoke:invoke,
             provider:provider,
             value:value,
