@@ -5,7 +5,7 @@
 ```
 ### 初始化Injector
 ```javascript
-    var injector = new Injector();
+    var injector = new HERE.Injector();
 ```
 ### 定义变量
 定义方式
@@ -168,7 +168,7 @@
 ### Injector的继承
 1.继承方式
 ```javascript
-    var injectorB = new Injector(injector);
+    var injectorB = new HERE.Injector(injector);
     var sA = injectorB.getService('serviceA'); //获取injector中定义的Service
     injectorB.service('serviceA',function(){
         this.getText = function(){
@@ -180,8 +180,8 @@
 ```
 2.多继承
 ```javascript
-    var injectorC = new Injector();
-    var injectorD = new Injector(injectorA,injectorC); //或 new Injector([injectorA,injectorC]);
+    var injectorC = new HERE.Injector();
+    var injectorD = new HERE.Injector(injectorA,injectorC); //或 new HERE.Injector([injectorA,injectorC]);
     injectorD.getService('serviceA');
     //注:获取Service、Factory、Provider、Value顺序：先从injectorD中获取，获取不到则从injectorA、injectorC中获取
 ```
