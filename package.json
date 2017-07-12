@@ -1,0 +1,34 @@
+{
+  "name": "injector",
+  "version": "1.0.0",
+  "description": "```html\r     <script src=\"dest/injector.js\"></script>\r ```\r ### 初始化Injector\r ```javascript\r     var injector = new Injector();\r ```\r ### 定义变量\r 定义方式\r ```javascript\r     injector.value('configInfo',{\r         info:'configInfo'\r     });\r     var configInfo = injector.getValue('configInfo');\r ```\r ### 定义Service：\r ```javascript\r     function serviceA(){\r         this.serviceText = 'serviceA hello world' + Math.random();\r         this.getText = function(){\r             return this.getText();\r         }\r     }\r ```\r #### 定义方式：\r 1.通过类型获取Service\r ```javascript\r     injector.service(serviceA);\r     var sA = injector.getService(serviceA);\r     sA.getText(); // 'serviceA hello world..'\r ```\r 2.通过名称获取Service\r ```javascript\r     injector.service('serviceA',serviceA);\r     var sA = injector.getService(serviceA) 或者 injector.getService('serviceA')\r     sA.getText(); // 'serviceA hello world..'\r ```\r 3.Service是单例的\r ```javascript\r    var sB =  injector.getService(serviceA);\r    sB === sA; //true",
+  "main": "rollup.config.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "build":"rollup -c && uglifyjs dest/injector.js > dest/injector.min.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kouyjes/injector-manager.git"
+  },
+  "devDependencies": {
+    "rollup": "^0.36.3",
+    "rollup-plugin-scss": "^0.1.0",
+    "rollup-plugin-uglify": "^1.0.1",
+    "ruby": "^0.6.1",
+    "scss": "^0.2.4"
+  },
+  "keywords": [
+    "injecttor",
+    "injector-manager"
+  ],
+  "author": "kouyj",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kouyjes/injector-manager/issues"
+  },
+  "homepage": "https://github.com/kouyjes/injector-manager#readme"
+}

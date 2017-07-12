@@ -2,9 +2,9 @@
 <html>
     <head>
         <title>injector test page</title>
-        <script src="../src/Injector.js"></script>
+        <script src="../dest/Injector.js"></script>
         <script>
-            var baseInjector = new Injector();
+            var baseInjector = new HERE.Injector();
             baseInjector.factory('personFactory', function () {
                 return {
                     name:Math.random(),
@@ -27,7 +27,7 @@
             console.log('service--personName:' + personS.getName());
 
 
-            var injector = new Injector(baseInjector);
+            var injector = new HERE.Injector(baseInjector);
             injector.service('personService', function () {
                 this.name = 'random:' + Math.random();
                 this.getName = function () {

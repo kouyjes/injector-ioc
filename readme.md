@@ -1,7 +1,7 @@
 ## Injector 依赖注入会帮助我们创建Service、Factory、Provider，自动创建依赖并注入
 ## 起步
 ```html
-    <script src="Injector.js"></script>
+    <script src="dest/injector.js"></script>
 ```
 ### 初始化Injector
 ```javascript
