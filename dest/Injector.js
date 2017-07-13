@@ -361,11 +361,26 @@ function Injector(){
             return _.super[methodName].apply(_.super,params);
         };
     });
+
+    Injector.freezeConfig();
 }
 (function () {
     var _config = {
         injectorIdentifyKey:'$injectorName',
         injectorDepIdentifyKey:'$injector'
+    };
+    Injector.freezeConfig = function () {
+        Injector.config = function (name) {
+            if(arguments.length === 0){
+                return {
+                    injectorIdentifyKey:'$injectorName',
+                    injectorDepIdentifyKey:'$injector'
+                };
+            }
+            if(isString(name)){
+                return _config[name];
+            }
+        };
     };
     Injector.config = function (name,val) {
         var config = {};
@@ -383,8 +398,6 @@ function Injector(){
         }
         if(!val && isObject(name)){
             config = name;
-        }else{
-
         }
         if(!config){
             return;
@@ -412,9 +425,18 @@ function Injector(){
         if(arguments.length === 1){
             return fn[_config.injectorDepIdentifyKey];
         }
-        if(arguments.length === 2 && isArray(injectors)){
-            return fn[_config.injectorDepIdentifyKey] = injectors;
+        var $injectors = [];
+        function appendInjector(injector){
+            if(isArray(injector)){
+                injector.forEach(appendInjector);
+            }else if(isString(injector) || isFunction(injector)){
+                $injectors.push(injector);
+            }else{
+                error('injector: {0} is invalid !' + injector);
+            }
         }
+        appendInjector(slice.call(arguments,1));
+        fn[_config.injectorDepIdentifyKey] = $injectors;
     };
 
 })();

@@ -5,78 +5,17 @@
         <script src="../dest/Injector.js"></script>
         <script>
             var baseInjector = new HERE.Injector();
-            baseInjector.factory('personFactory', function () {
-                return {
-                    name:Math.random(),
-                    getName: function () {
-                        return this.name;
-                    }
+            function serviceA(){
+                this.getText = function () {
+                    return 'service_base_A';
                 };
-            }).service('personService', function () {
-                this.name = Math.random();
-                this.getName = function () {
-                    return this.name;
-                }
-            })
-            var personF = baseInjector.getFactory('personFactory');
-            console.log('factory--personName:' + personF.getName());
+            }
+            baseInjector.service('serviceA',serviceA);
 
-            var personS = baseInjector.getService('personService');
-            console.log('service--personName:' + personS.getName());
-            personS = baseInjector.getService('personService');
-            console.log('service--personName:' + personS.getName());
-
-
-            var injector = new HERE.Injector(baseInjector);
-            injector.service('personService', function () {
-                this.name = 'random:' + Math.random();
-                this.getName = function () {
-                    return this.name;
-                };
-            })
-            injector.service('bookService', ['personService','baseConfig',function (personService,baseConfig) {
-                this.getBookSeller = function () {
-                    return 'book' + personService.getName();
-                }
-                this.getConfig = function () {
-                    return baseConfig;
-                }
-            }]).service('searchService',['personService',function (personService) {
-                this.getSearchName = function () {
-                    return 'search' + personService.getName();
-                }
-            }]);
-
-            injector.provider('randomCommon', function () {
-                this.$get = function () {
-                    return this.random();
-                }
-                this.random = function () {
-                    return Math.random();
-                }
-            })
-            injector.provider('stuControl', ['randomCommon',function (randomCommon) {
-                this.$get = function () {
-                    var random = this.random();
-                    return {
-                        code:random
-                    };
-                }
-                this.random = function () {
-                    return 'code' + randomCommon.random();
-                }
-            }]);
-            injector.value('baseConfig',{
-                text:'ccccccccc'
-            });
-            var stuControl = injector.getProvider('stuControl');
-            console.log(stuControl.$get());
-            var bookS = injector.getService('bookService');
-            console.log('bookS:' + bookS.getBookSeller());
-            var searchS = injector.getService('searchService');
-            console.log('searchS:' + searchS.getSearchName());
-
-            console.log(bookS.getConfig());
+            var injector =  new HERE.Injector(baseInjector);
+            var sA = injector.getService('serviceA');
+            var sA_ = injector.getService(serviceA);
+            console.log(sA === sA_);
         </script>
     </head>
     <body>

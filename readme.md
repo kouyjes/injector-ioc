@@ -192,5 +192,5 @@
         injectorIdentifyKey:'$injectorName',
         injectorDepIdentifyKey:'$injector'
     });
-    //注:一般不需要配置，当$injectorName、$injector发生命名冲突时才需要配置
+    //注:配置需要在初始化Injector之前进行，初始化后不能进行配置，一般不需要配置，当$injectorName、$injector发生命名冲突时才需要配置
 ```
