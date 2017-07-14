@@ -299,11 +299,17 @@ function createInjector(){
 
     function invoke(define){
         var factory = initDefineFnWithParams(undefined,define);
-        return initiate.call(this,factory,this['getFactory']);
+        return initiate.call(this,factory,this['getFactory'],true);
+    }
+
+    function invokeService(define){
+        var service = initDefineFnWithParams(undefined,define);
+        return initiate.call(this,service,this['getService']);
     }
 
     return {
         invoke:invoke,
+        invokeService:invokeService,
         provider:provider,
         value:value,
         service:service,
