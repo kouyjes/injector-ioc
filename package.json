@@ -23,6 +23,10 @@
   },
   "keywords": [
     "injecttor",
+     "service",
+      "factory",
+      "dependence",
+      "angular",
     "injector-manager"
   ],
   "author": "kouyj",
