@@ -201,6 +201,7 @@
 ### 配置
 ```javascript
     Injector.config({
+        debugMode:true,
         injectorIdentifyKey:'$injectorName',
         injectorDepIdentifyKey:'$injector'
     });
