@@ -4,6 +4,7 @@
         <title>injector test page</title>
         <script src="../dest/Injector.js"></script>
         <script>
+            //HERE.Injector.config('debugMode',false);
             var baseInjector = new HERE.Injector();
             function serviceA(){
                 this.getText = function () {
@@ -13,9 +14,17 @@
             baseInjector.service('serviceA',serviceA);
 
             var injector =  new HERE.Injector(baseInjector);
-            var sA = injector.getService('serviceA');
-            var sA_ = injector.getService(serviceA);
-            console.log(sA === sA_);
+
+            function serviceB(serviceA){
+
+                this.getText = function () {
+                    return serviceA.getText();
+                }
+
+            }
+            injector.service('serviceB',serviceB);
+            var sB = injector.getService(serviceB);
+            console.log(sB.getText());
         </script>
     </head>
     <body>

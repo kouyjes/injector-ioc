@@ -15,7 +15,7 @@ function enforceDefineFn(define){
     }else{
         defineFn = define;
         enforceFunction(defineFn);
-        $injector = Injector.depInjector(defineFn) || extractParameter(define);
+        $injector = Injector.depInjector(defineFn) || (Injector.debugMode()?extractParameter(define):[]);
     }
     Injector.depInjector(defineFn,$injector);
     return defineFn;

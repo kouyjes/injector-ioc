@@ -15,6 +15,9 @@ function isObject(value){
 var isArray = Array.isArray || function (array) {
         return array instanceof Array;
     };
+function isBoolean(value){
+    return typeof value === 'boolean';
+}
 function isString(value,throwError){
     var result = typeof value === 'string';
     if(!result && throwError){

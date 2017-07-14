@@ -136,7 +136,7 @@ function enforceDefineFn(define){
     }else{
         defineFn = define;
         enforceFunction(defineFn);
-        $injector = Injector.depInjector(defineFn) || extractParameter(define);
+        $injector = Injector.depInjector(defineFn) || (Injector.debugMode()?extractParameter(define):[]);
     }
     Injector.depInjector(defineFn,$injector);
     return defineFn;
@@ -372,15 +372,20 @@ function Injector(){
 }
 (function () {
     var _config = {
+        debugMode:true,
         injectorIdentifyKey:'$injectorName',
         injectorDepIdentifyKey:'$injector'
+    };
+    Injector.debugMode = function () {
+        return _config.debugMode;
     };
     Injector.freezeConfig = function () {
         Injector.config = function (name) {
             if(arguments.length === 0){
                 return {
-                    injectorIdentifyKey:'$injectorName',
-                    injectorDepIdentifyKey:'$injector'
+                    debugMode:_config.debugMode,
+                    injectorIdentifyKey:_config.injectorIdentifyKey,
+                    injectorDepIdentifyKey:_config.injectorDepIdentifyKey
                 };
             }
             if(isString(name)){
@@ -413,7 +418,7 @@ function Injector(){
                 return;
             }
             var val = config[key];
-            if(val && isString(val)){
+            if(typeof val === typeof _config[key]){
                 _config[key] = val;
             }
         });
