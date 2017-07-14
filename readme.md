@@ -148,6 +148,18 @@
     
     注:Service依赖可以时已经声明的Value、Service、Factory,如依赖的是Service，则会返回新创建的实例
 ```
+### 调用函数
+```javascript
+    injector.invoke(function(){
+        console.log('invoke function');
+    });
+    injector.invoke(['serviceA',function(sA){
+        sA.getText();
+    }]);
+    injector.invoke([serviceA,function(sA){
+        sA.getText();
+    }]);
+```
 ### 定义Provider
 1.定义方式
 ```javascript

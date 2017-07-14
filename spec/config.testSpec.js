@@ -1,5 +1,5 @@
 var Injector = require('../dest/Injector.js').Injector;
-describe("service injector test", function() {
+describe("config injector test", function() {
     var injector;
     beforeEach(function () {
         injector = new Injector();
