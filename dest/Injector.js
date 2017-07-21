@@ -124,9 +124,19 @@ var Injector$1 = (function () {
         };
         this.init.apply(this, arguments);
     }
+    /**
+     * debugMode check
+     * @returns {boolean}
+     */
     Injector.debugMode = function () {
         return _config$1.debugMode;
     };
+    /**
+     * config Injector global info
+     * @param name
+     * @param val
+     * @returns {any}
+     */
     Injector.config = function (name, val) {
         var config = {};
         if (arguments.length === 1) {
@@ -497,9 +507,19 @@ var Injector = (function () {
         };
         this.init.apply(this, arguments);
     }
+    /**
+     * debugMode check
+     * @returns {boolean}
+     */
     Injector.debugMode = function () {
         return _config.debugMode;
     };
+    /**
+     * config Injector global info
+     * @param name
+     * @param val
+     * @returns {any}
+     */
     Injector.config = function (name, val) {
         var config = {};
         if (arguments.length === 1) {

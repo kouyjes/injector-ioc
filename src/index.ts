@@ -28,9 +28,21 @@ class Injector{
             }
         }
     }
+
+    /**
+     * debugMode check
+     * @returns {boolean}
+     */
     static debugMode() {
         return _config.debugMode;
     }
+
+    /**
+     * config Injector global info
+     * @param name
+     * @param val
+     * @returns {any}
+     */
     static config(name,val) {
         var config = {};
         if(arguments.length === 1){
