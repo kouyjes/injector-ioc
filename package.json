@@ -18,6 +18,7 @@
     "rollup": "^0.36.3",
     "rollup-plugin-scss": "^0.1.0",
     "rollup-plugin-uglify": "^1.0.1",
+    "rollup-plugin-typescript": "^0.8.1",
     "ruby": "^0.6.1",
     "scss": "^0.2.4"
   },
