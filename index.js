@@ -1,1 +1,1 @@
-module.exports = require('./dest/Injector');
+module.exports = require('./dest/Injector').Injector;
