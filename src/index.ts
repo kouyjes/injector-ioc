@@ -2,6 +2,8 @@ var slice = Array.prototype.slice;
 import util from './util';
 import { Super } from './Super';
 import { createInjector } from './injector';
+import { ArrayList } from './ArrayList';
+import { CircularCheck } from './CircularCheck';
 
 var InjectorId = util._nextId();
 
@@ -10,7 +12,7 @@ var _config = {
     injectorIdentifyKey:'$injectorName',
     injectorDepIdentifyKey:'$injector'
 };
-class Injector{
+class Injector extends CircularCheck{
     name:Function;
     parent:Super;
     static config:Function;
@@ -100,6 +102,7 @@ class Injector{
         fn[_config.injectorDepIdentifyKey] = $injectors;
     }
     constructor(){
+        super();
         var _name = util.template('InjectorInstance_{0}',InjectorId());
         this.name = function (name) {
             if(arguments.length === 0){
@@ -125,7 +128,7 @@ class Injector{
                 injectors.push(arg);
             }
         });
-        this.parent = new Super(injectors)
+        this.parent = new Super<Injector>(injectors)
         this.extendMethod();
 
         Injector.freezeConfig();
@@ -141,6 +144,7 @@ class Injector{
                 return this.invokeMethod(methodName,params);
             };
             this[methodName] = function () {
+
                 var params = slice.call(arguments,0);
                 var val = injectorExtend[methodName].apply(this,params);
                 if(val){

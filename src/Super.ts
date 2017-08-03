@@ -1,21 +1,20 @@
 import { Injector } from './index';
+import { ArrayList } from './ArrayList';
 /**
  * injector collection
  * @param injectors
  * @constructor
  */
-class Super {
-    private injectors:Injector[] = [];
+class Super<T> extends ArrayList<T>{
 
-    constructor(injectors?) {
-        if (injectors) {
-            this.injectors = this.injectors.concat(injectors);
-        }
+    constructor(items:T[] = []) {
+        super();
+        Array.prototype.push.apply(this.__list__,items);
     }
 
     invokeMethod(methodName, params) {
         var val = null;
-        this.injectors.some(function (injector) {
+        this.__list__.some(function (injector) {
             val = injector[methodName].apply(injector, params);
             return !!val;
         });

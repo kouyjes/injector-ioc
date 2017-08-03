@@ -5,6 +5,7 @@ import { Injector } from './index';
 import util from './util';
 import { Cache } from './Cache';
 import {extractParameter } from './parser';
+import { ArrayList } from './ArrayList';
 
 function enforceDefineFn(define) {
     var $injector = [], defineFn = null;
@@ -82,7 +83,7 @@ function createInjector() {
         return provider || null;
     }
 
-    var initPath = [];
+    var initPath = new ArrayList<String>();
 
     function getFactory(name) {
         name = initGetParam(name);
@@ -90,8 +91,8 @@ function createInjector() {
         if (!provider) {
             return null;
         }
-        if (initPath.indexOf(name) >= 0) {
-            util.error('Circular dependence: {0} ' + initPath.join(' <-- '));
+        if (initPath.has(name)) {
+            util.error('Circular dependence: {0} ' + initPath.items().join(' <-- '));
         }
         initPath.unshift(name);
         try {

@@ -4,6 +4,12 @@
     (factory((global.HERE = global.HERE || {})));
 }(this, (function (exports) { 'use strict';
 
+function __extends(d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+}
+
 var util;
 (function (util) {
     function template(text) {
@@ -82,27 +88,87 @@ var util;
 })(util || (util = {}));
 var util$1 = util;
 
+var ArrayList = (function () {
+    function ArrayList(list) {
+        if (list === void 0) { list = []; }
+        this.__list__ = [];
+        Array.prototype.push.apply(this.__list__, list);
+    }
+    ArrayList.prototype.indexOf = function (value) {
+        return this.__list__.indexOf(value);
+    };
+    ArrayList.prototype.has = function (value) {
+        return this.indexOf(value) >= 0;
+    };
+    ArrayList.prototype.push = function (value) {
+        return this.__list__.push(value);
+    };
+    ArrayList.prototype.pop = function () {
+        return this.__list__.pop();
+    };
+    ArrayList.prototype.unshift = function (value) {
+        return this.__list__.unshift(value);
+    };
+    ArrayList.prototype.shift = function () {
+        return this.__list__.shift();
+    };
+    ArrayList.prototype.items = function () {
+        return this.__list__;
+    };
+    ArrayList.prototype.remove = function (value) {
+        var index = this.indexOf(value);
+        if (index >= 0) {
+            this.__list__.splice(index, 1);
+            return value;
+        }
+    };
+    ArrayList.prototype.empty = function () {
+        this.__list__.length = 0;
+    };
+    return ArrayList;
+}());
+
 /**
  * injector collection
  * @param injectors
  * @constructor
  */
-var Super = (function () {
-    function Super(injectors) {
-        this.injectors = [];
-        if (injectors) {
-            this.injectors = this.injectors.concat(injectors);
-        }
+var Super = (function (_super) {
+    __extends(Super, _super);
+    function Super(items) {
+        if (items === void 0) { items = []; }
+        _super.call(this);
+        Array.prototype.push.apply(this.__list__, items);
     }
     Super.prototype.invokeMethod = function (methodName, params) {
         var val = null;
-        this.injectors.some(function (injector) {
+        this.__list__.some(function (injector) {
             val = injector[methodName].apply(injector, params);
             return !!val;
         });
         return val;
     };
     return Super;
+}(ArrayList));
+
+var CircularCheck = (function () {
+    function CircularCheck() {
+        this.__invoking__ = false;
+    }
+    CircularCheck.prototype.invoke = function (fn) {
+        var params = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            params[_i - 1] = arguments[_i];
+        }
+        if (this.__invoking__) {
+            throw new Error('Circular invoked ' + this);
+        }
+        this.__invoking__ = true;
+        var result = fn.apply(this, params);
+        this.__invoking__ = false;
+        return result;
+    };
+    return CircularCheck;
 }());
 
 var slice$1 = Array.prototype.slice;
@@ -112,8 +178,10 @@ var _config$1 = {
     injectorIdentifyKey: '$injectorName',
     injectorDepIdentifyKey: '$injector'
 };
-var Injector$1 = (function () {
+var Injector$1 = (function (_super) {
+    __extends(Injector, _super);
     function Injector() {
+        _super.call(this);
         var _name = util$1.template('InjectorInstance_{0}', InjectorId$1());
         this.name = function (name) {
             if (arguments.length === 0) {
@@ -250,7 +318,7 @@ var Injector$1 = (function () {
         };
     };
     return Injector;
-}());
+}(CircularCheck));
 
 var Cache = (function () {
     function Cache(parent) {
@@ -372,15 +440,15 @@ function createInjector() {
         var provider = providerCache.get(providerName);
         return provider || null;
     }
-    var initPath = [];
+    var initPath = new ArrayList();
     function getFactory(name) {
         name = initGetParam(name);
         var provider = this['getProvider'](name);
         if (!provider) {
             return null;
         }
-        if (initPath.indexOf(name) >= 0) {
-            util$1.error('Circular dependence: {0} ' + initPath.join(' <-- '));
+        if (initPath.has(name)) {
+            util$1.error('Circular dependence: {0} ' + initPath.items().join(' <-- '));
         }
         initPath.unshift(name);
         try {
@@ -495,8 +563,10 @@ var _config = {
     injectorIdentifyKey: '$injectorName',
     injectorDepIdentifyKey: '$injector'
 };
-var Injector = (function () {
+var Injector = (function (_super) {
+    __extends(Injector, _super);
     function Injector() {
+        _super.call(this);
         var _name = util$1.template('InjectorInstance_{0}', InjectorId());
         this.name = function (name) {
             if (arguments.length === 0) {
@@ -633,7 +703,7 @@ var Injector = (function () {
         };
     };
     return Injector;
-}());
+}(CircularCheck));
 
 exports.Injector = Injector;
 
