@@ -1,8 +1,7 @@
 {
   "name": "injector-ioc",
-  "version": "1.0.6",
-  "description": "```html\r     <script src=\"dest/injector.js\"></script>\r ```\r ### 初始化Injector\r ```javascript\r     var injector = new Injector();\r ```\r ### 定义变量\r 定义方式\r ```javascript\r     injector.value('configInfo',{\r         info:'configInfo'\r     });\r     var configInfo = injector.getValue('configInfo');\r ```\r ### 定义Service：\r ```javascript\r     function serviceA(){\r         this.serviceText = 'serviceA hello world' + Math.random();\r         this.getText = function(){\r             return this.getText();\r         }\r     }\r ```\r #### 定义方式：\r 1.通过类型获取Service\r ```javascript\r     injector.service(serviceA);\r     var sA = injector.getService(serviceA);\r     sA.getText(); // 'serviceA hello world..'\r ```\r 2.通过名称获取Service\r ```javascript\r     injector.service('serviceA',serviceA);\r     var sA = injector.getService(serviceA) 或者 injector.getService('serviceA')\r     sA.getText(); // 'serviceA hello world..'\r ```\r 3.Service是单例的\r ```javascript\r    var sB =  injector.getService(serviceA);\r    sB === sA; //true",
-  "main": "rollup.config.js",
+  "version": "1.0.7",
+  "description":"injector-ioc ioc,object manager,service,factory,value,provider",
   "directories": {
     "example": "example"
   },
