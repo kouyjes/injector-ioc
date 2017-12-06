@@ -1,13 +1,13 @@
 {
   "name": "injector-ioc",
-  "version": "1.0.8",
+  "version": "1.1.8",
   "description":"injector-ioc ioc,object manager,service,factory,value,provider",
   "directories": {
     "example": "example"
   },
   "main": "index.js",
   "scripts": {
-    "build":"rollup -c && uglifyjs dest/injector.js > dest/injector.min.js",
+    "build":"rollup -c && uglifyjs dist/injector.js > dist/injector.min.js",
     "test": "jasmine"
   },
   "repository": {

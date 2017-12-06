@@ -187,6 +187,7 @@ function createInjector() {
     }
 
     function invoke(define) {
+
         var factory = initDefineFnWithParams(undefined, define);
         return initiate.call(this, factory, this['getFactory'], true);
     }
