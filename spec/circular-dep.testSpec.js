@@ -1,4 +1,4 @@
-var Injector = require('../dest/Injector.js').Injector;
+var Injector = require('../dist/Injector.js').Injector;
 describe("circular  test", function() {
     it('circular service', function () {
         var injector = new Injector();

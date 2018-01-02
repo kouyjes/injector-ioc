@@ -2,7 +2,6 @@ var slice = Array.prototype.slice;
 import util from './util';
 import { Super } from './Super';
 import { createInjector } from './injector';
-import { ArrayList } from './ArrayList';
 import { CircularCheck } from './CircularCheck';
 
 var InjectorId = util._nextId();
@@ -15,6 +14,16 @@ var _config = {
 class Injector extends CircularCheck{
     name:Function;
     parent:Super;
+    invoke: Function;
+    invokeService: Function;
+    provider: Function;
+    value: Function;
+    service: Function;
+    factory: Function;
+    getProvider: Function;
+    getValue: Function;
+    getService: Function;
+    getFactory: Function;
     static config:Function;
     static freezeConfig = function () {
         Injector.config = function (name) {
@@ -136,7 +145,9 @@ class Injector extends CircularCheck{
     private extendMethod(){
 
         var injectorExtend = createInjector();
-        Object.assign(this,injectorExtend);
+        Object.keys(injectorExtend).forEach((key:String)=>{
+            this[key] = injectorExtend[key];
+        });
         ['getValue','getService','getFactory','getProvider'].forEach((methodName) => {
 
             this.parent[methodName] = function () {

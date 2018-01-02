@@ -1,4 +1,4 @@
-var Injector = require('../dest/Injector.js').Injector;
+var Injector = require('../dist/Injector.js').Injector;
 describe('service dependence test suite', function () {
 
     var baseInjector = new Injector();

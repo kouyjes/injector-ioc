@@ -287,7 +287,9 @@ var Injector$1 = (function (_super) {
     Injector.prototype.extendMethod = function () {
         var _this = this;
         var injectorExtend = createInjector();
-        Object.assign(this, injectorExtend);
+        Object.keys(injectorExtend).forEach(function (key) {
+            _this[key] = injectorExtend[key];
+        });
         ['getValue', 'getService', 'getFactory', 'getProvider'].forEach(function (methodName) {
             _this.parent[methodName] = function () {
                 var params = slice$1.call(arguments, 0);
@@ -672,7 +674,9 @@ var Injector = (function (_super) {
     Injector.prototype.extendMethod = function () {
         var _this = this;
         var injectorExtend = createInjector();
-        Object.assign(this, injectorExtend);
+        Object.keys(injectorExtend).forEach(function (key) {
+            _this[key] = injectorExtend[key];
+        });
         ['getValue', 'getService', 'getFactory', 'getProvider'].forEach(function (methodName) {
             _this.parent[methodName] = function () {
                 var params = slice.call(arguments, 0);

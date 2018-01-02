@@ -1,4 +1,4 @@
-var Injector = require('../dest/Injector.js').Injector;
+var Injector = require('../dist/Injector.js').Injector;
 describe("injector invoke", function() {
     var injector;
     beforeEach(function () {
