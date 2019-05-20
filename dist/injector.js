@@ -358,7 +358,7 @@ var Cache = (function () {
  * parse function parameter
  * @type {RegExp}
  */
-var ARROW_ARG = /^([^\(]+?)=>/;
+var ARROW_ARG = /^\(?([^\(\)]+?)\)?\s*=>/;
 var FN_ARGS = /^[^\(]*\(\s*([^\)]*)\)/m;
 var FN_ARG_SPLIT = /,/;
 var FN_ARG = /^\s*(_?)(\S+?)\1\s*$/;
